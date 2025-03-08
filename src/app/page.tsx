@@ -1,6 +1,8 @@
 import type { UserType } from "@/models/User";
 import User from "@/models/User";
 import mongoose from "mongoose";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
 
 // Ensure MongoDB connection
 const connectDB = async () => {
@@ -28,7 +30,7 @@ export default async function Home() {
           // Create a new user with Mongoose
           const user = new User({
             name: "John Doe",
-            email: `john.doe${Date.now()}@example.com`, // Adding timestamp to make email unique on each attempt
+            email: `john.doe@example.com`, // Adding timestamp to make email unique on each attempt
           });
           
           await user.save();
@@ -36,14 +38,15 @@ export default async function Home() {
         } catch (error) {
           console.error("Error creating user:", error);
         }
-      }}>
-        <button
+        }}>
+          <Button
           type="submit"
-          className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
           Create Test User
-        </button>
+        </Button>
       </form>
+
+      <ModeToggle />
 
       <div>
         <h2>Users</h2>
