@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -23,6 +24,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >{children}
           </ThemeProvider>
+          <Toaster />
           </body>
     </html>
   );

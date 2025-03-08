@@ -17,8 +17,9 @@ const UserSchema: Schema = new Schema(
     {
         name: { type: String, required: true },
         email: { type: String, required: true, unique: true },
+        posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
     },
-    { timestamps: true } // Adds createdAt and updatedAt fields
+    { timestamps: true }
 );
 
 // 3. Mongoose Model Definition
