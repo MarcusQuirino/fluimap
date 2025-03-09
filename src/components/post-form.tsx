@@ -34,7 +34,6 @@ export function PostForm() {
   console.dir(user, { depth: null });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
     try {
       const response = await fetch("/api/posts", {
         method: "POST",
@@ -50,8 +49,6 @@ export function PostForm() {
       }
 
       const json = await response.json();
-
-      console.log(json);
 
       router.refresh();
       form.reset();
