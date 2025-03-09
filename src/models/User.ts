@@ -4,7 +4,7 @@ import { z } from 'zod';
 // 1. Zod Schema Definition
 export const UserSchemaZod = z.object({
     name: z.string().min(2).max(50),
-    email: z.string().email(),
+    clerkId: z.string(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional(),
 });
@@ -16,8 +16,7 @@ export type UserType = z.infer<typeof UserSchemaZod>;
 const UserSchema: Schema = new Schema(
     {
         name: { type: String, required: true },
-        email: { type: String, required: true, unique: true },
-        posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+        clerkId: { type: String, required: true, unique: true },
     },
     { timestamps: true }
 );

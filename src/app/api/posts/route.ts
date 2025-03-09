@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Post from '@/models/Posts'
-import { connectToDatabase } from '@/lib/db';
 import { revalidatePath } from "next/cache";
 
 // GET handler to fetch posts with pagination
 export async function GET(request: NextRequest) {
     try {
-        await connectToDatabase();
-
         const searchParams = request.nextUrl.searchParams;
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '10');

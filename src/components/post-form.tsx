@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-
+import { useUser } from "@clerk/nextjs";
 const FormSchema = z.object({
   content: z.string().max(150, {
     message: "the post must not be longer than 150 characters.",
@@ -25,10 +25,13 @@ const FormSchema = z.object({
 });
 
 export function PostForm() {
+  const { user } = useUser();
   const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
+
+  console.dir(user, { depth: null });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
@@ -37,8 +40,8 @@ export function PostForm() {
         method: "POST",
         body: JSON.stringify({
           content: data.content,
-          author: "John Doe",
-          authorId: "123",
+          author: user?.fullName,
+          authorId: user?.id,
         }),
       });
 
