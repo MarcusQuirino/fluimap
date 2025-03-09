@@ -16,7 +16,7 @@ export async function PostList() {
           key={data._id as string}
           author={data.author}
           content={data.content}
-          createdAt={data.createdAt as Date}
+          createdAt={data.createdAt!}
         />
       ))}
     </ScrollArea>

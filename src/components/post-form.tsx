@@ -48,10 +48,7 @@ export function PostForm() {
         throw new Error("Failed to create post");
       }
 
-      const json = await response.json();
-
       router.refresh();
-      form.reset();
 
       toast("post created!");
     } catch (error) {
