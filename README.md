@@ -82,7 +82,7 @@ brincadeiras a parte, esse tutorial é pra unix, se tu usa windows tu vai ter qu
 2. Clone o repositório
 
    ```bash
-   git clone https://github.com/seu-usuario/fluimap.git
+   git clone https://github.com/MarcusQuirino/fluimap
    cd fluimap
    ```
 
