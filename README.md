@@ -66,6 +66,14 @@ Primeiramente se certifique que possua um sistema operacional de adulto funciona
 
 brincadeiras a parte, esse tutorial é pra unix, se tu usa windows tu vai ter que adaptar alguns comando mas nada que o GPT não possa te ajudar com.
 
+Para sistemas UNIX eu criei um script q deve fazer todo o setup sozinho (talvez)
+
+```bash
+./setup.sh
+```
+
+se der certo pula lá pro passo 6
+
 1. Baixe um Versionador de node
 
 - se certifique q não possui o node já instalado na maquina
