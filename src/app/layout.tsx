@@ -12,6 +12,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { Header } from "@/components/header";
+import { QueryProvider } from "@/components/query-provider";
 
 export const metadata: Metadata = {
   title: "FluiMap",
@@ -36,14 +37,16 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Header />
-            <SignedOut>
-              <div className="flex h-full flex-row items-center justify-center gap-8">
-                <SignInButton />
-                <SignUpButton />
-              </div>
-            </SignedOut>
-            <SignedIn>{children}</SignedIn>
+            <QueryProvider>
+              <Header />
+              <SignedOut>
+                <div className="flex h-full flex-row items-center justify-center gap-8">
+                  <SignInButton />
+                  <SignUpButton />
+                </div>
+              </SignedOut>
+              <SignedIn>{children}</SignedIn>
+            </QueryProvider>
           </ThemeProvider>
           <Toaster />
         </body>
