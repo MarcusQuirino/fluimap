@@ -8,15 +8,15 @@ import { revalidatePath } from "next/cache";
 export async function GET() {
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const teams = await Team.find({ ownerId: userId });
-    
+
     return NextResponse.json({ teams }, { status: 200 });
   } catch (error) {
     console.error("Error retrieving teams:", error);
@@ -31,9 +31,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       name: string;
       description?: string;
     };
-    
+
     const { name, description } = body;
 
     const team = await Team.create({
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       ownerId: userId,
     });
 
-    revalidatePath("/surveys");
+    revalidatePath("/dashboard");
 
     return NextResponse.json({ team }, { status: 201 });
   } catch (error) {

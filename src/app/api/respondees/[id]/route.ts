@@ -12,17 +12,17 @@ async function checkAuth(userId: string | null, respondeeId: string) {
   }
 
   const respondee = await Respondee.findById(respondeeId);
-  
+
   if (!respondee) {
     return { authorized: false, error: "Respondee not found", status: 404 };
   }
 
   const team = await Team.findById(respondee.teamId);
-  
+
   if (!team) {
     return { authorized: false, error: "Team not found", status: 404 };
   }
-  
+
   if (team.ownerId !== userId) {
     return { authorized: false, error: "Unauthorized", status: 403 };
   }
@@ -31,22 +31,28 @@ async function checkAuth(userId: string | null, respondeeId: string) {
 }
 
 // GET handler to retrieve a specific respondee
-export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> },
+) {
   const params = await props.params;
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
     const authResult = await checkAuth(userId, params.id);
-    
+
     if (!authResult.authorized) {
       return NextResponse.json(
         { error: authResult.error },
-        { status: authResult.status! }
+        { status: authResult.status! },
       );
     }
 
-    return NextResponse.json({ respondee: authResult.respondee }, { status: 200 });
+    return NextResponse.json(
+      { respondee: authResult.respondee },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error retrieving respondee:", error);
     return NextResponse.json(
@@ -57,18 +63,21 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
 }
 
 // PUT handler to update a specific respondee
-export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> },
+) {
   const params = await props.params;
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
     const authResult = await checkAuth(userId, params.id);
-    
+
     if (!authResult.authorized || !authResult.respondee) {
       return NextResponse.json(
         { error: authResult.error },
-        { status: authResult.status! }
+        { status: authResult.status! },
       );
     }
 
@@ -77,7 +86,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       email?: string;
       role?: string;
     };
-    
+
     // If email is being updated, check for duplicates
     if (body.email) {
       const existingWithEmail = await Respondee.findOne({
@@ -85,22 +94,25 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
         teamId: authResult.respondee.teamId,
         _id: { $ne: params.id }, // Exclude the current respondee
       });
-      
+
       if (existingWithEmail) {
         return NextResponse.json(
-          { error: "Another respondee with this email already exists in this team" },
-          { status: 400 }
+          {
+            error:
+              "Another respondee with this email already exists in this team",
+          },
+          { status: 400 },
         );
       }
     }
-    
+
     const updatedRespondee = await Respondee.findByIdAndUpdate(
       params.id,
       { $set: body },
-      { new: true }
+      { new: true },
     );
 
-    revalidatePath(`/surveys`);
+    revalidatePath(`/dashboard`);
 
     return NextResponse.json({ respondee: updatedRespondee }, { status: 200 });
   } catch (error) {
@@ -113,24 +125,27 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
 }
 
 // DELETE handler to delete a specific respondee
-export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> },
+) {
   const params = await props.params;
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
     const authResult = await checkAuth(userId, params.id);
-    
+
     if (!authResult.authorized) {
       return NextResponse.json(
         { error: authResult.error },
-        { status: authResult.status! }
+        { status: authResult.status! },
       );
     }
 
     await Respondee.findByIdAndDelete(params.id);
 
-    revalidatePath(`/surveys`);
+    revalidatePath(`/dashboard`);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

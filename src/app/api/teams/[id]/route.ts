@@ -6,23 +6,26 @@ import dbConnect from "@/server/db";
 import { revalidatePath } from "next/cache";
 
 // GET handler to retrieve a specific team
-export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> },
+) {
   const params = await props.params;
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const team = await Team.findById(params.id);
-    
+
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
-    
+
     // Check if the authenticated user is the owner of the team
     if (team.ownerId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -30,7 +33,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
 
     // Get all respondees for this team
     const respondees = await Respondee.find({ teamId: params.id });
-    
+
     return NextResponse.json({ team, respondees }, { status: 200 });
   } catch (error) {
     console.error("Error retrieving team:", error);
@@ -42,23 +45,26 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
 }
 
 // PUT handler to update a specific team
-export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> },
+) {
   const params = await props.params;
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const team = await Team.findById(params.id);
-    
+
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
-    
+
     // Check if the authenticated user is the owner of the team
     if (team.ownerId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -68,14 +74,14 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
       name?: string;
       description?: string;
     };
-    
+
     const updatedTeam = await Team.findByIdAndUpdate(
       params.id,
       { $set: body },
-      { new: true }
+      { new: true },
     );
 
-    revalidatePath("/surveys");
+    revalidatePath("/dashboard");
 
     return NextResponse.json({ team: updatedTeam }, { status: 200 });
   } catch (error) {
@@ -88,23 +94,26 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: s
 }
 
 // DELETE handler to delete a specific team
-export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> },
+) {
   const params = await props.params;
   try {
     await dbConnect();
-    
+
     const { userId } = await auth();
-    
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const team = await Team.findById(params.id);
-    
+
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
-    
+
     // Check if the authenticated user is the owner of the team
     if (team.ownerId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -112,11 +121,11 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ id
 
     // Delete the team
     await Team.findByIdAndDelete(params.id);
-    
+
     // Delete all respondees associated with this team
     await Respondee.deleteMany({ teamId: params.id });
 
-    revalidatePath("/surveys");
+    revalidatePath("/dashboard");
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

@@ -18,11 +18,9 @@ async function createUser(clerkId: string, name: string | null) {
   }
 }
 
-export default async function TeamDetailPage(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-) {
+export default async function TeamDetailPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   const params = await props.params;
   await dbConnect();
 
@@ -50,11 +48,11 @@ export default async function TeamDetailPage(
         <div className="mb-6 flex items-center justify-between">
           <div>
             <Button variant="outline" asChild>
-              <Link href="/surveys">← Back to Teams</Link>
+              <Link href="/dashboard">← Back to Teams</Link>
             </Button>
-            <h1 className="text-3xl font-bold mt-4">{team.name}</h1>
+            <h1 className="mt-4 text-3xl font-bold">{team.name}</h1>
             {team.description && (
-              <p className="text-muted-foreground mt-1">{team.description}</p>
+              <p className="mt-1 text-muted-foreground">{team.description}</p>
             )}
           </div>
         </div>
@@ -65,7 +63,7 @@ export default async function TeamDetailPage(
               <RespondeeList teamId={params.id} />
             </Suspense>
           </div>
-          
+
           <div className="space-y-8">
             <RespondeeForm teamId={params.id} />
             <BulkImportForm teamId={params.id} />

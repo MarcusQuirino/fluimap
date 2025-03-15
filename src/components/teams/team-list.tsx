@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,26 +26,39 @@ interface TeamsResponse {
   teams: Team[];
 }
 
+interface SurveyRunResponse {
+  success: boolean;
+  surveyId: string;
+  respondeeCount: number;
+  respondeeLinks: {
+    id: string;
+    name: string;
+    email: string;
+    link: string;
+  }[];
+}
+
 async function fetchTeams(): Promise<Team[]> {
   const response = await fetch("/api/teams");
-  
+
   if (!response.ok) {
-    const errorData = await response.json() as ApiError;
+    const errorData = (await response.json()) as ApiError;
     throw new Error(errorData.error || "Failed to fetch teams");
   }
-  
-  const data = await response.json() as TeamsResponse;
+
+  const data = (await response.json()) as TeamsResponse;
   return data.teams;
 }
 
 export function TeamList() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  
-  const { 
-    data: teams = [], 
-    isLoading, 
-    error 
+  const [runningTeams, setRunningTeams] = useState<Record<string, boolean>>({});
+
+  const {
+    data: teams = [],
+    isLoading,
+    error,
   } = useQuery({
     queryKey: ["teams"],
     queryFn: fetchTeams,
@@ -55,17 +69,21 @@ export function TeamList() {
   }
 
   async function deleteTeam(teamId: string) {
-    if (!confirm("Are you sure you want to delete this team? This will also delete all respondees.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this team? This will also delete all respondees.",
+      )
+    ) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/teams/${teamId}`, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as ApiError;
+        const errorData = (await response.json()) as ApiError;
         throw new Error(errorData.error || "Failed to delete team");
       }
 
@@ -81,8 +99,40 @@ export function TeamList() {
     }
   }
 
+  async function runSurvey(teamId: string) {
+    try {
+      setRunningTeams((prev) => ({ ...prev, [teamId]: true }));
+
+      const response = await fetch("/api/surveys/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ teamId }),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as ApiError;
+        throw new Error(errorData.error || "Failed to run survey");
+      }
+
+      const data = (await response.json()) as SurveyRunResponse;
+      toast.success(
+        `Survey started with ID: ${data.surveyId}. ${data.respondeeCount} emails will be sent.`,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
+    } finally {
+      setRunningTeams((prev) => ({ ...prev, [teamId]: false }));
+    }
+  }
+
   if (isLoading) {
-    return <div className="text-center p-4">Loading teams...</div>;
+    return <div className="p-4 text-center">Loading teams...</div>;
   }
 
   return (
@@ -92,7 +142,7 @@ export function TeamList() {
       </CardHeader>
       <CardContent>
         {teams.length === 0 ? (
-          <div className="text-center p-4 text-muted-foreground">
+          <div className="p-4 text-center text-muted-foreground">
             No teams found. Create your first team to get started.
           </div>
         ) : (
@@ -100,31 +150,44 @@ export function TeamList() {
             <div className="space-y-4">
               {teams.map((team) => (
                 <Card key={team._id} className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold text-lg">{team.name}</h3>
-                      {team.description && (
-                        <p className="text-muted-foreground text-sm mt-1">
-                          {team.description}
-                        </p>
-                      )}
+                  <div className="flex flex-col space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">{team.name}</h3>
+                        {team.description && (
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {team.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            router.push(`/dashboard/teams/${team._id}`)
+                          }
+                        >
+                          Manage
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => void deleteTeam(team._id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/surveys/teams/${team._id}`)}
-                      >
-                        Manage
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => void deleteTeam(team._id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => void runSurvey(team._id)}
+                      disabled={runningTeams[team._id]}
+                      className="w-full"
+                    >
+                      {runningTeams[team._id] ? "Running..." : "Run Survey"}
+                    </Button>
                   </div>
                 </Card>
               ))}
