@@ -18,11 +18,12 @@ async function createUser(clerkId: string, name: string | null) {
   }
 }
 
-export default async function TeamDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function TeamDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   await dbConnect();
 
   const { userId, redirectToSignIn } = await auth();

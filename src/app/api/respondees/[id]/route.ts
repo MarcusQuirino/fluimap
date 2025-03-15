@@ -31,10 +31,8 @@ async function checkAuth(userId: string | null, respondeeId: string) {
 }
 
 // GET handler to retrieve a specific respondee
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await dbConnect();
     
@@ -59,10 +57,8 @@ export async function GET(
 }
 
 // PUT handler to update a specific respondee
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await dbConnect();
     
@@ -117,10 +113,8 @@ export async function PUT(
 }
 
 // DELETE handler to delete a specific respondee
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await dbConnect();
     

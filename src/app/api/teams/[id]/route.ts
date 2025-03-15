@@ -6,10 +6,8 @@ import dbConnect from "@/server/db";
 import { revalidatePath } from "next/cache";
 
 // GET handler to retrieve a specific team
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await dbConnect();
     
@@ -44,10 +42,8 @@ export async function GET(
 }
 
 // PUT handler to update a specific team
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await dbConnect();
     
@@ -92,10 +88,8 @@ export async function PUT(
 }
 
 // DELETE handler to delete a specific team
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await dbConnect();
     
